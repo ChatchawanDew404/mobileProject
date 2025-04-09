@@ -1,0 +1,3 @@
+export const supabaseUrl = 'https://fnbqqvlvduchovpuwxue.supabase.co'
+
+export const supabaseAnonkey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYnFxdmx2ZHVjaG92cHV3eHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjAzNzgsImV4cCI6MjA1OTY5NjM3OH0.02xNpFvGvEyKTywFaW_BNjDZpRsYWJCutp992C_1ZPU'
