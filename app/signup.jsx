@@ -31,18 +31,16 @@ const Signup = () => {
        let email = emailRef.current.trim();
        let password = passwordRef.current.trim();
        setLoading(true)
-       console.log(name)
 
        const {data:{session},error} = await supabase.auth.signUp({
         email,
         password,
-        option:{
+        options:{
             data:{
                 name:name
             }
         }
        });
-       console.log(session)
        setLoading(false);
 
        if(error){

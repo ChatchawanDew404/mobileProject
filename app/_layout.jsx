@@ -23,7 +23,7 @@ const MainLayout = () => {
         if(session){
           // move to home page
            setAuth(session?.user)
-           updateUserData(session?.user)
+           updateUserData(session?.user,session?.user.email)
            router.replace('/home')
         }else{
           // move to welcoome page
@@ -33,11 +33,10 @@ const MainLayout = () => {
       })
   }, [])
 
-  const updateUserData = async(user) =>{
+  const updateUserData = async(user,email) =>{
    let res = await getUserData(user?.id);
    if(res.success){
-    setUserData(res.data)
-    console.log('get user data' , res)
+    setUserData({...res.data , email})
    }
    
   }
