@@ -1,9 +1,15 @@
-import { View, Text } from 'react-native'
+import { View, Text , LogBox} from 'react-native'
 import React, { useEffect } from 'react'
 import { Stack, useRouter } from 'expo-router'
 import { AuthProvider , useAuth} from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { getUserData } from '../service/userService'
+
+LogBox.ignoreLogs([
+  'Warning: TRenderEngineProvider: Support for defaultProps will be removed from function components in a future major release. Use JavaScript default parameters instead.',
+  'Warning: MemoizedTNodeRenderer: Support for defaultProps will be removed from memo components in a future major release. Use JavaScript default parameters instead.',
+  'Warning: TNodeChildrenRenderer: Support for defaultProps will be removed from function components in a future major release. Use JavaScript default parameters instead.',
+]);
 
 const _layout = () =>{
   return (
@@ -45,7 +51,11 @@ const MainLayout = () => {
     <Stack
     screenOptions={{
         headerShown:false
-    }}/>
+    }}>
+
+        <Stack.Screen name="(main)/postDetails" options={{presentation : 'modal'}}/>
+      </Stack>
+    
   )
 }
 

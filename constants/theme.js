@@ -20,12 +20,12 @@ export const theme = {
         extraBold:"800"
     },
     radius:{
-        xs:"10",
-        sm:"12",
-        md:"14",
-        lg:"16",
-        xl:"18",
-        xxl:"22",
+        xs:10,
+        sm:12,
+        md:14,
+        lg:16,
+        xl:18,
+        xxl:22,
     }
 }
 
