@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View , Alert, Pressable} from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View , Alert, Pressable, FlatList} from 'react-native';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
@@ -11,10 +11,17 @@ import { supabase } from '../../lib/supabase';
 import Avatar from '../../components/Avatar';
 import Feather from '@expo/vector-icons/Feather';
 import Fontisto from '@expo/vector-icons/Fontisto';
+import { fetchPosts } from '../../service/postService';
+import Loading from '../../components/Loading';
+import PostCard from '../../components/PostCard';
 
+var limit = 0;
 const Profile = () => {
   const { user, setUser } = useAuth();
   const router = useRouter();
+
+   const [posts,setPosts] = useState([])
+   const [hasMore,setHasMore] = useState(true)
 
   const onLogout = async () =>{
     const {error} = await supabase.auth.signOut()
@@ -38,9 +45,50 @@ const Profile = () => {
     ])
   }
 
+   
+  // เเสดงโพสตทั้งหมดของผู้ใช้คนนั้น
+    const getPosts = async() =>{
+        if(!hasMore){
+           return null ;
+        }
+        limit = limit + 10
+          let res = await fetchPosts(limit , user.id);
+          if(res.success){
+            if(posts.length == res.data.length) {setHasMore(false)};
+           setPosts(res.data)
+  }
+      }
+  
+    
   return (
     <ScreenWrapper bg="white" >
-      <UserHeader user={user} router={router} handleLogout={handleLogout}/>
+      {/* show all data post from user */}
+      <FlatList
+  data={posts}
+  showsVerticalScrollIndicator={false}
+  contentContainerStyle={styles.listStyle}
+  keyExtractor={(item) => item.id.toString()}
+  renderItem={({ item }) => (
+    <PostCard
+      item={item}
+      currentUser={user}
+      router={router}
+    />
+  )}
+
+  onEndReached={() =>{
+     getPosts();
+  }} // เมื่อเลื่อนหน้าจอจนสุด
+
+  onEndReachedThreshold={0}
+
+  ListHeaderComponent={ <UserHeader user={user} router={router} handleLogout={handleLogout}/>}
+  ListHeaderComponentStyle={{marginBottom:80}}
+  ListFooterComponent={hasMore ?(
+  <View style={{marginVertical:posts.length == 0 ? 200 : 30}}> 
+  <Loading/>
+  </View>) : <View style={{marginVertical:30}}><Text style={styles.noPosts}>No more posts</Text></View>}
+/>
     </ScreenWrapper>
   );
 };

@@ -31,7 +31,6 @@ const Login = () => {
         email,password
        })
 
-       console.log('error', error)
        if(error){
         Alert.alert('login' , error.message)
        }

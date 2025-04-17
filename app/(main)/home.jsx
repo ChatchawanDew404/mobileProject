@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View , Pressable , FlatList } from 'react-native'
+import { useIsFocused } from '@react-navigation/native';
 import React , {useState , useEffect} from 'react'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import Button from '../../components/Button'
@@ -14,6 +15,8 @@ import { fetchPosts } from '../../service/postService'
 import PostCard from '../../components/PostCard'
 import Loading from '../../components/Loading'
 import { getUserData } from '../../service/userService'
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 var limit = 0
 
@@ -24,14 +27,38 @@ const home = () => {
     const [posts,setPosts] = useState([])
     const [hasMore,setHasMore] = useState(true)
 
-    const handlePostEvent = async (payload) =>{
-       if(payload.eventType == 'INSERT' && payload?.new?.id){
-        let newPost = {...payload.new};
-        let res = await getUserData(newPost.userId)
-        newPost.user = res.success ? res.data : {}
-        setPosts(prevPosts => [newPost , ...prevPosts])
-       }
-    }
+    const handlePostEvent = async (payload) => {
+      // หากมีการ insert เกิดขึ้น ให้ทำการนำข้อมูลชุดใหม่ เพิ่มเข้าในข้อมูลชุดเก่า พร้อมกับ update ข้อมูล
+      if (payload.eventType === 'INSERT' && payload.new?.id) {
+        let newPost = { ...payload.new };
+        let res = await getUserData(newPost.userId);
+        newPost.postLikes = [];
+        newPost.comments = [{ count: 0 }];
+        newPost.user = res.success ? res.data : {};
+        setPosts((prevPosts) => [newPost, ...prevPosts]);
+      }
+  
+      if (payload.eventType === 'DELETE' && payload.old?.id) {
+        setPosts((prevPosts) => {
+          let updatedPosts = prevPosts.filter((post) => post.id !== payload.old.id);
+          return updatedPosts;
+        });
+      }
+
+      if (payload.eventType === 'UPDATE' && payload.new?.id) {
+        setPosts((prevPosts) => {
+          let updatePosts = prevPosts.map((post) =>{
+            if(post.id == payload.new.id){
+                post.body = payload.new.body
+                post.file = payload.new.file
+            }
+            return post
+          })
+          return updatePosts
+        });
+      }
+    };
+
 
     useEffect(() =>{
       let postChannel = supabase
@@ -50,6 +77,15 @@ const home = () => {
   };
     },[])
 
+    // reload when user change page
+    useFocusEffect(
+      useCallback(() => {
+        getPosts();
+      }, [])
+    );
+
+
+    // get all post 
     const getPosts = async() =>{
       if(!hasMore){
          return null ;
@@ -63,16 +99,6 @@ const home = () => {
     }
 
 
-
-
-
-    // const onLogout = async () =>{
-    //     setAuth(null)
-    //     const {error} = await supabase.auth.signOut()
-    //     if(error){
-    //         Alert.alert('Logout' , "error signing out")
-    //     }
-    // }
   return (
     <ScreenWrapper bg="white">
     <View style={styles.container}>

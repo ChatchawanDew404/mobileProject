@@ -1,4 +1,4 @@
-import { Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Share, StyleSheet, Text, TouchableOpacity, View , Alert } from 'react-native';
 import React, { useEffect , useState} from 'react';
 import { theme } from '../constants/theme';
 import { heightPercent, stripHtmlTags, widthPercent } from '../helpers/common';
@@ -34,6 +34,10 @@ const PostCard = ({
   currentUser,
   router,
   hasShadow = true,
+  showMoreIcon = true,
+  showDelete=false,
+  onEdit=()=>{},
+  onDelete=()=>{},
 }) => {
   const shadowStyles = {
     shadowOffset: {
@@ -90,11 +94,29 @@ const PostCard = ({
 
   // เมื่อ user กด comment ให้ทำอะไร
   const openPostDetails = () =>{
+    if(!showMoreIcon) return null;
     router.push({pathname:'postDetails' , params:{postId: item?.id}})
   }
 
+  // -- เมื่อ user กดลบ post
+  const handlePostDelete = () =>{
+        Alert.alert('Confirm' , " Are you sure you want to delete this post ?" ,[
+                    {
+                      text:'Cancel',
+                      onPress:()=>console.log('modal cancelled'),
+                      style:'cancel'
+                    },
+                    {
+                      text:'Delete',
+                      onPress:()=> onDelete(item),
+                      style:'destructive'
+                    }
+                  ])
+  }
+
+
   const createAt = moment(item?.created_at).format("MMM D")
-  const liked = likes.filter(like => like.userId==currentUser?.id)[0] ? true: false;
+  const liked = likes.filter(like => like.userId==currentUser?.id)[0] ? true: false || false;
 
   return (
     <View style={[styles.container , hasShadow && shadowStyles]}>
@@ -108,9 +130,27 @@ const PostCard = ({
                   <Text style={styles.postTime}>{createAt}</Text>
                  </View>
             </View>
-            <TouchableOpacity opPress={openPostDetails}>
-                 <AntDesign name="ellipsis1" size={24} color="black" />
-                 </TouchableOpacity>
+
+            {showMoreIcon &&  (
+       <TouchableOpacity onPress={openPostDetails}>
+       <AntDesign name="ellipsis1" size={24} color="black" />
+       </TouchableOpacity>
+            )}
+
+
+            {
+              showDelete && currentUser.id == item?.userId && (
+                <View style={styles.actions}>
+                    <TouchableOpacity onPress={() =>onEdit(item)}>
+                    <AntDesign name="edit" size={heightPercent(2.5)} color="black" />
+       </TouchableOpacity>
+                    <TouchableOpacity onPress={handlePostDelete}>
+                    <AntDesign name="delete" size={heightPercent(2.5)} color="red" />
+       </TouchableOpacity>
+                </View>
+              )
+            }
+
      </View>
 
      <View style={styles.content}>
@@ -156,8 +196,7 @@ const PostCard = ({
           </TouchableOpacity>
           <Text style={styles.count}>
                {
-                0
-                    // likes?.length
+                    item?.comments[0]?.count
                }
           </Text>
          </View>

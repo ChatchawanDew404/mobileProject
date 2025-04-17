@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View , Image, Pressable , Alert } from 'react-native'
-import React, { useRef , useState} from 'react'
+import React, { useEffect, useRef , useState} from 'react'
 import Header from '../../components/Header'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { widthPercent , heightPercent } from '../../helpers/common'
@@ -7,7 +7,7 @@ import { theme } from '../../constants/theme'
 import Avatar from '../../components/Avatar'
 import {useAuth} from "../../contexts/AuthContext"
 import RichTextEditor from '../../components/RichTextEditor'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Button from '../../components/Button'
@@ -23,6 +23,20 @@ const newPost = () => {
   const router = useRouter();
   const [loading,setLoading] = useState(false);
   const [file,setFile] = useState(file)
+  // ---- user click edit post
+  const post = useLocalSearchParams()
+  
+  
+  useEffect(() =>{
+    if(post && post.id){
+      bodyRef.current = post.body
+      setFile(post.file || null);
+      setTimeout(() =>{
+        editorRef?.current?.setContentHTML(post.body)
+      },300)
+    }
+  },[])
+
 
 
   const onPick = async(isImage) =>{
@@ -81,6 +95,11 @@ const newPost = () => {
       body:bodyRef.current,
       userId: user?.id
      }
+     
+     // หากมีการเเก้ไข (edit) ให้ทำอะไร
+     if(post && post.id){data.id = post.id}
+
+
      // สร้าง post
      setLoading(true)
      let res = await createOrUpdatePost(data);
@@ -88,7 +107,8 @@ const newPost = () => {
      if(res.success){
          setFile(null)
          bodyRef.current = ''
-         Alert.alert('Post' , 'Your post has been created successfully.')
+         let alertText = post && post.id ? "edit" : "create"
+         Alert.alert('Post' , `Your post has been ${alertText} successfully.`)
          router.back()
          console.log("finish")
      }else{
@@ -101,10 +121,10 @@ const newPost = () => {
   return (
     <ScreenWrapper bg="white">
       <View style={styles.container}>
-      <Header title="Create Post"/>
+      <Header title={post && post.id ? "Edit Post" : "Create Post"}/>
       <ScrollView contentContainerStyle={{gap:20}}>
       <View style={styles.header}>
-          <Avatar url={user?.image} size={heightPercent(6.5)} rounded={theme.radius.xl}/>
+          <Avatar uri={user?.image} size={heightPercent(6.5)} rounded={theme.radius.xl}/>
           <View style={{gap:2}}>
             <Text style={styles.username}>{user && user.name}</Text>
             <Text style={styles.public}>Public</Text>
@@ -149,7 +169,7 @@ const newPost = () => {
               </View>
           </View>
 
-          <Button buttonStyle={{height:heightPercent(6.2)}} title="Post" loading={loading} hasShadow={false} onPress={onSubmit}/>
+          <Button buttonStyle={{height:heightPercent(6.2)}} title={post && post.id ? "Update": "Post"} loading={loading} hasShadow={false} onPress={onSubmit}/>
       
       </ScrollView>
       </View>
@@ -218,7 +238,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 15,
   },
-  video:{},
   closeIcon:{
     position:'absolute',
     top:10,

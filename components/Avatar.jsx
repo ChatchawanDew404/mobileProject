@@ -5,7 +5,7 @@ import {Image} from 'expo-image'
 import { getUserImageSrc } from '../service/imageService'
 import { theme } from '../constants/theme'
 
-const Avatar = ({ uri, size = hp(4.5), rounded = theme.radius.md, style }) => {
+const Avatar = ({ uri, size = heightPercent(4.5), rounded = theme.radius.md, style }) => {
     return (
       <Image
         source={getUserImageSrc(uri)}
@@ -14,6 +14,8 @@ const Avatar = ({ uri, size = hp(4.5), rounded = theme.radius.md, style }) => {
       />
     );
   };
+
+  
   
   export default Avatar;
   
