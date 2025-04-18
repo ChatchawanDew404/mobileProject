@@ -48,3 +48,15 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
+
+How to fix error
+![image](https://github.com/user-attachments/assets/c7399121-058f-48a3-ae76-717cbf411cb8)
+
+
+https://cdn.discordapp.com/attachments/1333060313729335367/1362839912885391693/Screenshot_2025-04-19_001758.png?ex=6803db13&is=68028993&hm=3c8dc39e301db645ae920b0b109b6d201f556ed49b18352e9c2eebaecd5f8878&
+- node_module/react-native-pell-rich-editor/src/RichEditor.js
+- Go to around line 270 and search for the line that contains dataDetectorTypes={'none'}.
+  When you find it, delete that line.
+
