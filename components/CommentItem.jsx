@@ -7,7 +7,8 @@ import moment from 'moment'
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const CommentItem = ({item , canDelete=false , onDelete=()=>{}}) => {
-    const createAt = moment(item?.create_at).format('MMM d')
+    const createAt = moment(item?.created_at).format('MMM D')
+    console.log(createAt)
 
     const handleDelete = () =>{
          Alert.alert('Confirm' , " Are you sure you want to delete this comment ?" ,[

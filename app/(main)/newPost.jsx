@@ -24,10 +24,11 @@ const newPost = () => {
   const [loading,setLoading] = useState(false);
   const [file,setFile] = useState(file)
   // ---- user click edit post
-  const post = useLocalSearchParams()
+  const post = useLocalSearchParams() || {}
   
   
   useEffect(() =>{
+    console.log(post)
     if(post && post.id){
       bodyRef.current = post.body
       setFile(post.file || null);
@@ -117,7 +118,7 @@ const newPost = () => {
    }
   }
 
-  
+
   return (
     <ScreenWrapper bg="white">
       <View style={styles.container}>
