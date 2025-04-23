@@ -14,6 +14,7 @@ export const getUserImageSrc = imagePath =>{
 
 export const getSupabaseFileUrl = filePath =>{
     if(filePath){
+      console.log(`${supabaseUrl}/storage/v1/object/public/uploads/${filePath}`)
         return {uri: `${supabaseUrl}/storage/v1/object/public/uploads/${filePath}`}
     }
     return null;
@@ -39,32 +40,64 @@ export const getLocalFilePath = (filePath) => {
 
 
 
+// export const uploadFile = async (folderName, fileUri, isImage = true) => {
+//     try {
+//       const fileName = getFilePath(folderName, isImage);
+//       const fileBase64 = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.Base64 });
+//       const fileBuffer = decode(fileBase64);
+
+  
+//       const { data, error: storageError } = await supabase.storage
+//         .from('uploads')
+//         .upload(fileName, fileBuffer, {
+//           cacheControl: '3600',
+//           upsert: false,
+//           contentType: isImage ? 'image/*' : 'video/*',
+//         });
+  
+//       if (storageError) {
+//         console.log('Supabase storage error: ', storageError);
+//         return { success: false, msg: 'Could not upload media' };
+//       }
+  
+//       return { success: true, data: data?.path }; // Return the path of the uploaded file
+//     } catch (error) {
+//       console.log('File upload error: ', error);
+//       return { success: false, msg: 'Could not upload media' };
+//     }
+//   };
+  
+
 export const uploadFile = async (folderName, fileUri, isImage = true) => {
-    try {
-      const fileName = getFilePath(folderName, isImage);
-      const fileBase64 = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.Base64 });
-      const fileBuffer = decode(fileBase64);
-  
-      const { data, error: storageError } = await supabase.storage
-        .from('uploads')
-        .upload(fileName, fileBuffer, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: isImage ? 'image/*' : 'video/*',
-        });
-  
-      if (storageError) {
-        console.log('Supabase storage error: ', storageError);
-        return { success: false, msg: 'Could not upload media' };
-      }
-  
-      return { success: true, data: data?.path }; // Return the path of the uploaded file
-    } catch (error) {
-      console.log('File upload error: ', error);
+  try {
+    const fileExt = fileUri.split('.').pop();
+    const fileName = `${folderName}/${Date.now()}.${fileExt}`;
+
+    const formData = new FormData();
+    formData.append('file', {
+      uri: fileUri,
+      name: fileName,
+      type: isImage ? `image/${fileExt}` : 'video/*',
+    });
+
+    const { data, error } = await supabase.storage
+      .from('uploads')
+      .upload(fileName, formData._parts[0][1], {
+        contentType: isImage ? `image/${fileExt}` : 'video/*',
+        upsert: true,
+      });
+
+    if (error) {
+      console.log('Supabase storage error: ', error);
       return { success: false, msg: 'Could not upload media' };
     }
-  };
-  
+
+    return { success: true, data: data?.path };
+  } catch (error) {
+    console.log('File upload error: ', error);
+    return { success: false, msg: 'Could not upload media' };
+  }
+};
 
   export const getFilePath = (folderName, isImage = false) => {
     const timestamp = new Date().getTime();

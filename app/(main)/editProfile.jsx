@@ -77,8 +77,6 @@ const EditProfile = () => {
       setUserData({ ...currentUser, ...userData })
       router.back()
     }
-
-    console.log("check", res)
   }
 
   const imageSource = user.image && typeof user.image === 'object'
